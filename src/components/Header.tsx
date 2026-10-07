@@ -4,7 +4,7 @@ import type { Setting } from '@/payload-types'
 
 import { CartBadge, FavBadge } from './cart'
 
-export function Header({ settings }: { settings: Setting }) {
+export function Header({ settings, customerName }: { settings: Setting; customerName?: string | null }) {
   return (
     <>
       {settings.announcement && <div className="mock-note">{settings.announcement}</div>}
@@ -47,6 +47,17 @@ export function Header({ settings }: { settings: Setting }) {
             <input name="q" type="search" placeholder="Поиск: название или артикул" aria-label="Поиск" />
           </form>
           <div className="actions">
+            <Link className="act" href="/account">
+              {customerName ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+                </svg>
+              ) : (
+                <span className="ya" aria-hidden="true">Я</span>
+              )}
+              <span className="lbl who">{customerName ? customerName.split(' ')[0] : 'Войти'}</span>
+            </Link>
             <Link className="act" href="/favorites">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M12 21s-7-4.5-9.3-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z" />

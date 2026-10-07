@@ -9,7 +9,19 @@ import { deliveryCost, MAX_QTY, type DeliveryMethod, type DeliveryPrices } from 
 
 import { getCartProducts, placeOrder, type CartProductInfo } from './actions'
 
-export function CartView({ prices, pickupAddress }: { prices: DeliveryPrices; pickupAddress: string }) {
+type Prefill = { name: string; phone: string; email: string }
+
+export function CartView({
+  prices,
+  pickupAddress,
+  customer,
+  canLogin,
+}: {
+  prices: DeliveryPrices
+  pickupAddress: string
+  customer: Prefill | null
+  canLogin: boolean
+}) {
   const { items, ready, setQty, remove, clear } = useCart()
   const [fresh, setFresh] = useState<Map<number, CartProductInfo> | null>(null)
   const [method, setMethod] = useState<DeliveryMethod>('cdek')
@@ -120,17 +132,22 @@ export function CartView({ prices, pickupAddress }: { prices: DeliveryPrices; pi
         }}
       >
         <h2>Оформление заказа</h2>
+        {!customer && canLogin && (
+          <a className="btn ya-btn" href="/auth/yandex?back=/cart" style={{ justifyContent: 'center' }}>
+            <span className="ya">Я</span> Заполнить через Яндекс ID
+          </a>
+        )}
         <label className="field">
           Имя
-          <input name="name" id="name" required autoComplete="name" maxLength={100} />
+          <input name="name" id="name" required autoComplete="name" maxLength={100} defaultValue={customer?.name} />
         </label>
         <label className="field">
           Телефон
-          <input name="phone" id="phone" required type="tel" autoComplete="tel" placeholder="+7 900 123-45-67" maxLength={40} />
+          <input name="phone" id="phone" required type="tel" autoComplete="tel" placeholder="+7 900 123-45-67" maxLength={40} defaultValue={customer?.phone} />
         </label>
         <label className="field">
           Почта (пришлём чек и номер для отслеживания)
-          <input name="email" id="email" type="email" autoComplete="email" maxLength={200} />
+          <input name="email" id="email" type="email" autoComplete="email" maxLength={200} defaultValue={customer?.email} />
         </label>
         <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: -9999 }} />
 

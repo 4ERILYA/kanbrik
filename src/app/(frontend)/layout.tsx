@@ -4,6 +4,7 @@ import { Golos_Text, Unbounded } from 'next/font/google'
 import { CartProvider } from '@/components/cart'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
+import { getCurrentCustomer } from '@/lib/customer'
 import { getFooterPages, getSettings } from '@/lib/data'
 
 import './styles.css'
@@ -22,12 +23,12 @@ export const metadata: Metadata = {
 }
 
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
-  const [settings, pages] = await Promise.all([getSettings(), getFooterPages()])
+  const [settings, pages, customer] = await Promise.all([getSettings(), getFooterPages(), getCurrentCustomer()])
   return (
     <html lang="ru" className={`${display.variable} ${body.variable}`}>
       <body>
         <CartProvider>
-          <Header settings={settings} />
+          <Header settings={settings} customerName={customer?.name} />
           <main>{children}</main>
           <Footer settings={settings} pages={pages} />
         </CartProvider>

@@ -91,6 +91,13 @@ export const Orders: CollectionConfig = {
         { name: 'total', type: 'number', label: 'Итого, ₽', admin: { readOnly: true } },
       ],
     },
+    {
+      name: 'account',
+      type: 'relationship',
+      relationTo: 'customers',
+      label: 'Покупатель на сайте',
+      admin: { position: 'sidebar', readOnly: true },
+    },
     { name: 'managerNote', type: 'textarea', label: 'Заметка для себя', admin: { position: 'sidebar' } },
     { name: 'paymentId', type: 'text', label: 'Платёж ЮKassa', admin: { position: 'sidebar', readOnly: true } },
     { name: 'stockReserved', type: 'checkbox', admin: { hidden: true } },

@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     orders: Order;
+    customers: Customer;
     products: Product;
     series: Series;
     reviews: Review;
@@ -79,9 +80,14 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    customers: {
+      orders: 'orders';
+    };
+  };
   collectionsSelect: {
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     series: SeriesSelect<false> | SeriesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
@@ -165,6 +171,7 @@ export interface Order {
   };
   itemsTotal?: number | null;
   total?: number | null;
+  account?: (number | null) | Customer;
   managerNote?: string | null;
   paymentId?: string | null;
   stockReserved?: boolean | null;
@@ -289,6 +296,27 @@ export interface Series {
   createdAt: string;
 }
 /**
+ * Покупатели, которые входили на сайт через Яндекс ID.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  yandexId?: string | null;
+  lastLoginAt?: string | null;
+  orders?: {
+    docs?: (number | Order)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Отзывы покупателей. Появляются на сайте сразу после сохранения, если стоит галочка «Опубликован».
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -399,6 +427,10 @@ export interface PayloadLockedDocument {
         value: number | Order;
       } | null)
     | ({
+        relationTo: 'customers';
+        value: number | Customer;
+      } | null)
+    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -501,11 +533,26 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   itemsTotal?: T;
   total?: T;
+  account?: T;
   managerNote?: T;
   paymentId?: T;
   stockReserved?: T;
   stockRestored?: T;
   accessToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  yandexId?: T;
+  lastLoginAt?: T;
+  orders?: T;
   updatedAt?: T;
   createdAt?: T;
 }

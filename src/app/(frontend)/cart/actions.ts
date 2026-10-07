@@ -2,6 +2,7 @@
 
 import { randomBytes } from 'crypto'
 
+import { getCurrentCustomer } from '@/lib/customer'
 import { getSettings, mediaUrl, payload } from '@/lib/data'
 import { calculateOrder, normalizePhone, type CartLine, type DeliveryMethod } from '@/lib/order'
 import { createPayment, yookassaEnabled } from '@/lib/yookassa'
@@ -80,11 +81,12 @@ export async function placeOrder(input: CheckoutInput): Promise<CheckoutResult> 
   const items = (Array.isArray(input.items) ? input.items : []).slice(0, 50)
   const p = await payload()
   const ids = items.map((i) => Number(i.id)).filter((x) => Number.isInteger(x))
-  const [products, settings] = await Promise.all([
+  const [products, settings, customer] = await Promise.all([
     ids.length
       ? p.find({ collection: 'products', where: { id: { in: ids } }, limit: 50, depth: 0, overrideAccess: false })
       : Promise.resolve({ docs: [] }),
     getSettings(),
+    getCurrentCustomer(),
   ])
   const calc = calculateOrder(
     items.map((i) => ({ id: Number(i.id), qty: Number(i.qty) })),
@@ -120,8 +122,19 @@ export async function placeOrder(input: CheckoutInput): Promise<CheckoutResult> 
       total: calc.total,
       accessToken,
       stockReserved: true,
+      account: customer?.id,
     },
   })
+
+  // Запоминаем телефон покупателя для следующих заказов
+  if (customer && (!customer.phone || !customer.email)) {
+    await p.update({
+      collection: 'customers',
+      id: customer.id,
+      overrideAccess: true,
+      data: { phone: customer.phone || phone, email: customer.email || email || undefined },
+    })
+  }
 
   // Резервируем товар: уменьшаем остаток и считаем продажи
   for (const line of calc.lines) {
