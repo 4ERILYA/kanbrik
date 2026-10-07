@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { getCurrentCustomer } from '@/lib/customer'
 import { getFooterPages, getSettings } from '@/lib/data'
+import { yandexEnabled } from '@/lib/yandex'
 
 import './styles.css'
 
@@ -28,7 +29,7 @@ export default async function FrontendLayout({ children }: { children: React.Rea
     <html lang="ru" className={`${display.variable} ${body.variable}`}>
       <body>
         <CartProvider>
-          <Header settings={settings} customerName={customer?.name} />
+          <Header settings={settings} customerName={customer?.name} canLogin={yandexEnabled()} />
           <main>{children}</main>
           <Footer settings={settings} pages={pages} />
         </CartProvider>
